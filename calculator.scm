@@ -1,5 +1,30 @@
-;; C:\Users\Faith\Desktop\Alex\scheme
+;; calculator.scm
+;; 
+;; The MIT License (MIT)
+;; 
+;; Copyright (c) 2013 Alexander Nelson
+;; 
+;; Permission is hereby granted, free of charge, to any person obtaining a copy
+;; of this software and associated documentation files (the "Software"), to deal
+;; in the Software without restriction, including without limitation the rights
+;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+;; copies of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
+;; 
+;; The above copyright notice and this permission notice shall be included in all
+;; copies or substantial portions of the Software.
+;; 
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+;; SOFTWARE.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (zero? x)
   (= 0 x))
 
@@ -140,9 +165,9 @@
   (arccos (/ 1 x)))
      
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Trigonometric functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; need 8 terms to get machine precision after range-reduction
 (define (sine-taylor-series x)
   (define (iter k result)
@@ -232,9 +257,10 @@
 (define (coth x)
   (/ (cosh x)
      (sinh x)))
-;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Trigonometric Functions
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (sin z)
   (if (complex-number? z)
     (+ (* (real-sin (real-part z))
@@ -265,9 +291,9 @@
 
 (define (cot x)
   (/ 1 (tan x)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logarithms
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (newtons-method f deriv guess n)
   ((lambda (iterate)
@@ -320,9 +346,28 @@
   (* (fast-expt b (truncate x))
      (exp (* (- x (truncate x)) (ln b)))))
 
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Square root
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (real-sqrt x)
+  (cond
+   ((negative? x) (* +i (real-sqrt (abs x))))
+   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
+   (else (newtons-method
+           (lambda (t) (- (square t) x))
+           (lambda (t) (* 2 t))
+           (/ (inc x) 2)
+           0))))
+
+(define (sqrt x)
+  (if (complex-number? x)
+    (* (real-sqrt (magnitude x))
+      (exp (* +i (angle x) (/ 1 2))))
+    (real-sqrt x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Inverse Hyperbolic Trig Functions
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (arctan z)
   (if (complex-number? z)
     (* (/ +i 2)
@@ -345,24 +390,6 @@
     (ln (/ (+ 1 x)
            (- 1 x)))
     2))
-;;;;;;;;;;;;;;;;;;;;;;
-;; Square root
-;;;;;;;;;;;;;;;;;;;;;;
-(define (real-sqrt x)
-  (cond
-   ((negative? x) (* +i (real-sqrt (abs x))))
-   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
-   (else (newtons-method
-           (lambda (t) (- (square t) x))
-           (lambda (t) (* 2 t))
-           (/ (inc x) 2)
-           0))))
-
-(define (sqrt x)
-  (if (complex-number? x)
-    (* (real-sqrt (magnitude x))
-      (exp (* +i (angle x) (/ 1 2))))
-    (real-sqrt x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; factorials
