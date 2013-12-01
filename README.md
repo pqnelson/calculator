@@ -20,6 +20,9 @@ On the other hand, these constants are precise to 50+ digits.
 
 ## Future Directions
 
+It would be nice to refactor the code into self-contained files. This would
+be the first thing on my "to do" list.
+
 Well, since we haven't considered special functions, that might be a direction.
 
 It would be nice to speed up the initial load.

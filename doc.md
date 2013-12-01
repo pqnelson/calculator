@@ -2,10 +2,14 @@
 
 These are some dirty tricks for some interactive Scheme calculations.
 
-**Conventions:** We indicate a mathematical constant by prepending a colon to the identifier. So, for example, `:pi` refers to the mathematical constant approximately 3.141, `:e` refers to Euler's constant, `:golden-ratio` refers to...well, you get the idea.
+**Conventions:** We indicate a mathematical constant by prepending a colon 
+to the identifier. So, for example, `:pi` refers to the mathematical constant 
+approximately 3.141, `:e` refers to Euler's constant, `:golden-ratio` refers 
+to...well, you get the idea.
 
 ## Infinities
-We will declare infinity as a constant. Specifically, there are 4 of interest (plus-or-minus infinity, and plus-or-minus imaginary infinity):
+We will declare infinity as a constant. Specifically, there are 4 of interest 
+(plus-or-minus infinity, and plus-or-minus imaginary infinity):
 ```scheme
 (define :+inf.0 (/ 1.0 0.0))
 (define :-inf.0 (/ -1.0 0.0))
@@ -29,12 +33,22 @@ We will declare infinity as a constant. Specifically, there are 4 of interest (p
 (define (finite? z)
   (not (infinite? z)))
 ```
-It's mildly cavalier to treat infinity like a number, but meh the nervous programmer can rest assured we can always use Stereographic projection to embed the complex numbers into a compact space and work from there. (It's a triviality!)
+It's mildly cavalier to treat infinity like a number, but meh the nervous 
+programmer can rest assured we can always use Stereographic projection to embed 
+the complex numbers into a compact space and work from there. (It's a 
+triviality!)
 
-One disadvantage is that we cannot say `(= x :+inf.0)` for example, Scheme will throw a fit. Instead, we can test indirectly for finiteness.
+One disadvantage is that we cannot say `(= x :+inf.0)` for example, Scheme will 
+throw a fit. Instead, we can test indirectly for finiteness.
 
 ## Floating Point Equality
-We can't always use `(= a b)` to test equality for floating point numbers `a` and `b`. Instead, following Donald Knuth (as in his *TAOCP* vol 2), we say `(float= a b)` if and only if `(<= (abs (- a b)) (* tol (abs a)))` and `(<= (abs (- a b)) (* tol (abs b)))`. Usually `tol` is machine epsilon. We see these two conditions hold if the absolute difference is less than `(* tol (min (abs a) (abs b)))`. This is our definition!
+We can't always use `(= a b)` to test equality for floating point numbers `a` 
+and `b`. Instead, following Donald Knuth (as in his *TAOCP*, vol 2, third ed., 
+pp 233-235), we say `(float= a b)` if and only if 
+`(<= (abs (- a b)) (* tol (abs a)))` and `(<= (abs (- a b)) (* tol (abs b)))`. 
+Usually `tol` is machine epsilon. We see these two conditions hold if the 
+absolute difference is less than `(* tol (min (abs a) (abs b)))`. This is our 
+definition!
 ```scheme
 (define (float= a b)
   (<= 
@@ -45,7 +59,8 @@ We can't always use `(= a b)` to test equality for floating point numbers `a` an
 
 ## Continued Fractions
 
-I took a more general approach than SICP, using Generalized continued fractions explicitly (SICP uses them implicitly and it is mildly confusing).
+I took a more general approach than SICP, using Generalized continued fractions 
+explicitly (SICP uses them implicitly and it is mildly confusing).
 
 ```scheme
 (define (inc x)
@@ -65,7 +80,8 @@ I took a more general approach than SICP, using Generalized continued fractions 
   (generalized-cont-frac (lambda (i) 1) b k))
 ```
 
-Great, so lets have some fun with this. There's a quick way to compute _e_ (Euler's constant):
+Great, so lets have some fun with this. There's a quick way to compute _e_ 
+(Euler's constant):
 
 ```scheme
 (define (euler-cont-frac-term k)
@@ -82,7 +98,8 @@ Great, so lets have some fun with this. There's a quick way to compute _e_ (Eule
 ```
 
 ### Golden Ratio
-The famous continued fraction for the Golden ratio is quite simple [1; 1, 1, 1, ...]. 
+The famous continued fraction for the Golden ratio is quite 
+simple [1; 1, 1, 1, ...]. 
 ```scheme
 (define (phi k)
   (+ 1 (* 1.0 (cont-frac (lambda (i) 1) k))))
@@ -92,7 +109,9 @@ The famous continued fraction for the Golden ratio is quite simple [1; 1, 1, 1, 
 ```
 
 ### ArcTangent Function and other Inverse Trigonometric Functions
-The inverse tangent function ("arc-tangent" function) can be computed using continued fractions as well. There are two different ways to do it. Euler gives us one approach:
+The inverse tangent function ("arc-tangent" function) can be computed using 
+continued fractions as well. There are two different ways to do it. Euler 
+gives us one approach:
 ```scheme
 (define (euler-arctan z k)
   (generalized-cont-frac
@@ -133,7 +152,8 @@ We use various identities with the arctangent function to "reduce the range".
 (define (arctan x) 
   (real-arctan x))
 ```
-Observe we have to use `(eqv? x :+inf.0)` to check if the number is infinite or not.
+Observe we have to use `(eqv? x :+inf.0)` to check if the number is infinite 
+or not.
 
 Now, we can use the arctangent to compute the arc-sine and arc-cosine functions.
 ```scheme
@@ -165,7 +185,13 @@ We can compute special functions as continued fractions, for example:
     (lambda (i) (- (* 2 i) 1))
     k))
 ```
-We can consider sine as a continued fraction, then use the identity `(= (cos x) (sin (- (/ :pi 2) x)))` to compute cosine. The problem with this approach is the sine continued fraction is...well, quite bizarre, and it's hard to handle range reduction. What we do instead is: consider the Taylor series. This is a common approach, decrease by multiples of pi, then plug it into the Taylor series. It works for "small-er" values, but for say "huge `x`"...we have unavoidable problems.
+We can consider sine as a continued fraction, then use the identity 
+`(= (cos x) (sin (- (/ :pi 2) x)))` to compute cosine. The problem with this 
+approach is the sine continued fraction is...well, quite bizarre, and it's hard 
+to handle range reduction. What we do instead is: consider the Taylor series. 
+This is a common approach, decrease by multiples of pi, then plug it into the 
+Taylor series. It works for "small-er" values, but for say "huge `x`"...we have 
+unavoidable problems.
 
 We implicitly put the truncated Taylor series in [Horner form](http://en.wikipedia.org/wiki/Horner%27s_method).
 ```scheme
@@ -202,11 +228,14 @@ We implicitly put the truncated Taylor series in [Horner form](http://en.wikiped
 (define (cot x)
   (/ 1 (tan x)))
 ```
-We do a crude form of range reduction when computing sine, it could (and should) be improved in the future.
+We do a crude form of range reduction when computing sine, it could 
+(and should) be improved in the future.
 
 # Exponentiation
 
-Exponentiation occurs quite frequently in mathematics, so we should probably implement it. We note the identity `b^(-n)=(1/b)^n` is implemented, but the following implementation works if and only if `n` is an integer.
+Exponentiation occurs quite frequently in mathematics, so we should probably 
+implement it. We note the identity `b^(-n)=(1/b)^n` is implemented, but the 
+following implementation works if and only if `n` is an integer.
 ```scheme
 (define (even? n) 
   (= (remainder n 2) 0))
@@ -223,7 +252,9 @@ What do we do for fractional `n`?
 
 ## Exponential Function
 
-We use Euler's constant as the base, then use the natural logarithm to modify the exponent. We introduce the exponential function as a continued fraction (see, e.g., [wikipedia](https://en.wikipedia.org/wiki/Exponential_function#Continued_fractions_for_ex)):
+We use Euler's constant as the base, then use the natural logarithm to modify 
+the exponent. We introduce the exponential function as a continued fraction 
+(see, e.g., [wikipedia](https://en.wikipedia.org/wiki/Exponential_function#Continued_fractions_for_ex)):
 ```scheme
 (define (euler-exp-a z k)
   (if (= 1 k)
@@ -243,7 +274,8 @@ We use Euler's constant as the base, then use the natural logarithm to modify th
       (lambda (j) (euler-exp-b z j))
       k)))
 ```
-We can combine the continued fraction and the "old-fashioned power" function to get a better exponential function:
+We can combine the continued fraction and the "old-fashioned power" function 
+to get a better exponential function:
 ```scheme
 (define (exp z)
   (* (fast-expt :e (truncate z))
@@ -252,7 +284,8 @@ We can combine the continued fraction and the "old-fashioned power" function to 
 (assert (= (exp-cf 1 8) :e))
 (assert (= (exp 1) :e))
 ```
-Well, really, this is partially true. It's true for *real* `z`. To implement the exponential function for *complex* `z`, we would have
+Well, really, this is partially true. It's true for *real* `z`. To implement 
+the exponential function for *complex* `z`, we would have
 ```scheme
 (define (real-exp z)
   (* (fast-expt :e (truncate z))
@@ -267,7 +300,8 @@ Well, really, this is partially true. It's true for *real* `z`. To implement the
     (real-exp z)))
 ```
 ## Hyperbolic Trigonometric Functions
-We can easily implement hyperbolic trigonometric functions now that we have the exponential:
+We can easily implement hyperbolic trigonometric functions now that we have 
+the exponential:
 ```scheme
 (define (sinh x)
   (/ (- (exp x)
@@ -295,7 +329,9 @@ We can easily implement hyperbolic trigonometric functions now that we have the 
 ```
 ## Logarithms
 
-We use Newton's method for calculating the natural logarithm, but with some precautions: namely, we have a "counter limit" (we iterate at most 53 times):
+We use Newton's method for calculating the natural logarithm, but with 
+some precautions: namely, we have a "counter limit" (we iterate at most 
+53 times):
 ```scheme
 (define (newtons-method f deriv guess n)
   ((lambda (iterate)
@@ -304,9 +340,12 @@ We use Newton's method for calculating the natural logarithm, but with some prec
        (newtons-method f deriv (- guess iterate) (inc n))))
    (/ (f guess) (deriv guess))))
 ```
-Then we just use this to figure out the natural logarithm, since `(exp (ln x))` is identical with `x`. So given `c`, we compute its natural logarithm by finding the root to the function `(lambda (x) (- (exp x) c))`.
+Then we just use this to figure out the natural logarithm, since 
+`(exp (ln x))` is identical with `x`. So given `c`, we compute its natural 
+logarithm by finding the root to the function `(lambda (x) (- (exp x) c))`.
 
-We do some simplifications, namely, we precompute `ln 1` is zero, and we recursively factor out multiples of 10 until we get a "small enough number".
+We do some simplifications, namely, we precompute `ln 1` is zero, and we 
+recursively factor out multiples of 10 until we get a "small enough number".
 ```scheme
 (define (ln-iterate c)
   (newtons-method 
@@ -345,7 +384,9 @@ We can use the law of logarithms to implement logarithms in other bases, e.g.,
   (/ (ln x) :ln-10))
 ```
 ### Inverse Trig Functions Redux
-We had a temporary placeholder for `arctan`. Now that we have the logarithm function defined for, well, all values, then we can compute the arc-tangent function for complex values.
+We had a temporary placeholder for `arctan`. Now that we have the logarithm 
+function defined for, well, all values, then we can compute the arc-tangent 
+function for complex values.
 ```scheme
 (define (arctan z)
   (if (complex-number? z)
@@ -373,7 +414,9 @@ We can also consider the inverse hyperbolic trigonometric functions:
     2))
 ```
 # Square Roots
-We can use Newton's method to quickly implement the squareroot, since it's essentially the root to the problem `(identical? (sqrt x) (- (square z) x))`. So we have:
+We can use Newton's method to quickly implement the squareroot, since it's 
+essentially the root to the problem `(identical? (sqrt x) (- (square z) x))`. 
+So we have:
 ```scheme
 (define (real-sqrt x)
   (cond
@@ -391,7 +434,11 @@ We can use Newton's method to quickly implement the squareroot, since it's essen
       (exp (* +i (angle x) (/ 1 2))))
     (real-sqrt x)))
 ```
-This is actually more precise than if we use floating point arithmetic. For example, `(sqrt 2)` gives us `886731088897/627013566048` -- we should note `(- (square (sqrt 2)) 2)` is about `-2.5e-24`. Similarly, `(- (square (sqrt 3)) 3)` gives us about `-6e-18`. This is beyond machine precision!
+This is actually more precise than if we use floating point arithmetic. For 
+example, `(sqrt 2)` gives us `886731088897/627013566048` -- we should note 
+`(- (square (sqrt 2)) 2)` is about `-2.5e-24`. Similarly, 
+`(- (square (sqrt 3)) 3)` gives us about `-6e-18`. This is beyond machine 
+precision!
 # Factorials and Friends
 
 We have the run-of-the-mill factorial function:
