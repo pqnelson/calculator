@@ -129,11 +129,11 @@ gives us one approach:
     k))
 
 ;; see, e.g., http://en.wikipedia.org/wiki/Computing_%CF%80#Other_classical_formulae
-(define :pi (+ (* 20.0 (euler-arctan (/ 1 7) 25))
-               (* 8.0 (euler-arctan (/ 3 79) 25))))
+(define :pi (+ (* 20 (euler-arctan (/ 1 7) 45))
+               (* 8 (euler-arctan (/ 3 79) 45))))
 (define :2pi (* 2 :pi))
-(define :pi/4 (+ (* 5.0 (euler-arctan (/ 1 7) 25))
-                 (* 2.0 (euler-arctan (/ 3 79) 25))))
+(define :pi/4 (+ (* 5 (euler-arctan (/ 1 7) 45))
+                 (* 2 (euler-arctan (/ 3 79) 45))))
 (define :pi/2 (* :pi/4 2))
 ```
 We use various identities with the arctangent function to "reduce the range".
@@ -203,7 +203,7 @@ We implicitly put the truncated Taylor series in [Horner form](http://en.wikiped
       (iter (- k 1) (+ 1 (* (/ (- (square x)) 
                                (* (* 2 k) (inc (* 2 k)))) 
                             result)))))
-  (iter 10 1))
+  (iter 20 1))
 
 (define (sine-range-reduce x)
   (truncate 
@@ -346,24 +346,45 @@ logarithm by finding the root to the function `(lambda (x) (- (exp x) c))`.
 
 We do some simplifications, namely, we precompute `ln 1` is zero, and we 
 recursively factor out multiples of 10 until we get a "small enough number".
+
+We "range reduce" to a number less than `:e`, then we guess some number based
+on the relationship `(= (ln z) (* 2 (arctanh (/ (- z 1) (+ z 1)))))`.
 ```scheme
+(define (ln-series z)
+  ((lambda (u)
+    (* 2
+       u
+       (+ 1
+          (* (square u)
+             (+ 1/3
+                (* 1/5 (square u)))))))
+   (/ (- z 1) (+ z 1)))) 
+
 (define (ln-iterate c)
   (newtons-method 
     (lambda (x) (- (exp x) c)) 
     exp
-    (/ c 2) 
+    (ln-series c)
     0))
 
 (define :ln-10 (ln-iterate 10))
 
-(define (real-ln c)
+(define (approx-real-ln c)
   (cond 
     ((< c 0) (+ +i :pi (real-ln (- c))))
     ((infinite? c) :+inf.0)
     ((= c 0) :-inf.0)
     ((= c 1) 0)
-    ((> c 10) (+ (ln (/ c 10)) :ln-10))
+    ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
+    ((> c :e) (+ (approx-real-ln (remainder c :e))
+                 (quotient c :e)))
     (else (ln-iterate c))))
+
+(define (real-ln z)
+  ((lambda (y)
+     (+ y
+        (ln-iterate (/ c (exp y)))))
+    (approx-real-ln z)))
 
 (define (ln z)
   (if (complex-number? z)
@@ -421,7 +442,7 @@ So we have:
 (define (real-sqrt x)
   (cond
    ((negative? x) (* +i (real-sqrt (abs x))))
-   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
+   ((> x 100) (* 10 (real-sqrt (/ x 100))))
    (else (newtons-method
            (lambda (t) (- (square t) x))
            (lambda (t) (* 2 t))

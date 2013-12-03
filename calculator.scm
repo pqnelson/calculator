@@ -22,46 +22,8 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; utility functions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define (zero? x)
-  (= 0 x))
+(load "utils.scm")
 
-(define (inc x)
-  (+ 1 x))
-
-(define (float= a b)
-  (<= 
-    (/ (abs (- a b))
-       (/ (+ 1.0 (min (abs a) (abs b))) 2))
-    1e-16))
-
-(define (complex-number? z)
-  (and (number? z)
-       (not (real? z))))
-
-(define (real-infinite? x)
-  (and (flo:flonum? x)
-       (not (flo:finite? x))))
-
-(define (infinite? z)
-  (if (complex-number? z)
-    (or (real-infinite? (real-part z))
-        (real-infinite? (imag-part z)))
-    (real-infinite? z)))
-
-(define (finite? z)
-  (not (infinite? z)))
-
-(define :+inf.0 (/ 1.0 0.0))
-(define :-inf.0 (/ -1.0 0.0))
-(define :+inf.i (/ +i 0.0))
-(define :-inf.i (/ -i 0.0))
-
-(define (even? n) 
-  (= (remainder n 2) 0))
-  
 ;; wikipedia's notation for a generalized continued fraction
 (define (generalized-cont-frac a b k)
   (define (recur i) 
@@ -84,7 +46,6 @@
   (inc (* 2 (cont-frac euler-cont-frac-term k))))
 
 ;; (euler-e 7) => 2.7182818284590455
-
 (define :e (euler-e 20))
 
 (define (phi k)
@@ -98,7 +59,6 @@
     (lambda (i) (if (= 1 i) x (- (square x))))
     (lambda (i) (- (* 2 i) 1))
     k))
-
 
 (define (euler-arctan z k)
   (generalized-cont-frac
@@ -163,7 +123,6 @@
 
 (define (arcsec x) 
   (arccos (/ 1 x)))
-     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Trigonometric functions
@@ -182,7 +141,7 @@
   (truncate 
     (+ (/ x :pi) 
        (/ 1 2))))
-  
+
 (define (real-sin x)
   ((lambda (n)
      (* (if (even? n) 1 -1)
@@ -191,6 +150,7 @@
 
 (define (real-cos x)
   (real-sin (- :pi/2 x)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Exponentiation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -291,42 +251,54 @@
 
 (define (cot x)
   (/ 1 (tan x)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logarithms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://en.wikipedia.org/wiki/Logarithm#Power_series
+(define (ln-series z)
+  ((lambda (u)
+    (* 2
+       u
+       (+ 1
+          (* (square u)
+             (+ 1/3
+                (* 1/5 (square u)))))))
+   (/ (- z 1) (+ z 1)))) 
 
-(define (newtons-method f deriv guess n)
-  ((lambda (iterate)
-     (if (or (> n 53) (float= (* 1.0 (- guess iterate)) (* 1.0 guess)))
-       (- guess iterate)
-       (newtons-method f deriv (- guess iterate) (inc n))))
-   (/ (f guess) (deriv guess))))
-   
 (define (ln-iterate c)
   (newtons-method 
     (lambda (x) (- (exp x) c)) 
     exp
-    c
+    (ln-series c)
     0))
 
-(define :ln-2 (ln-iterate 2.0))
-(define :ln-10 (ln-iterate 10.0))
+(define :ln-2 (ln-iterate 2))
+(define :ln-10 (ln-iterate 10))
 
-(define (real-ln c)
+(define (approx-real-ln c)
   (cond 
-    ((< c 0) (+ (* +i :pi) (real-ln (- c))))
+    ((< c 0) (+ +i :pi (real-ln (- c))))
     ((infinite? c) :+inf.0)
     ((= c 0) :-inf.0)
     ((= c 1) 0)
-    ((> c 10) (+ (ln (/ c 10)) :ln-10))
+    ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
+    ((> c :e) (+ (approx-real-ln (remainder c :e))
+                 (quotient c :e)))
     (else (ln-iterate c))))
+
+(define (real-ln z)
+  ((lambda (y)
+     (+ y
+        (ln-iterate (/ c (exp y)))))
+    (approx-real-ln z)))
 
 (define (exact-ln z)
   (if (complex-number? z)
     (+ (real-ln (magnitude z))
        (* +i (angle z)))
     (real-ln z)))
-    
+
 (define (ln z)
   (* 1.0 (exact-ln (* 1.0 z))))
 
@@ -337,7 +309,6 @@
 ;; base-10 logarithm
 (define (log x)
   (/ (ln x) :ln-10))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Power function
@@ -412,13 +383,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Stirling Numbers
 ;;;;;;;;;;;;;;;;;;;;;;;; 
-(define (sum term a next b)
-  (define (iter a result)
-    (if (> a b)
-      result
-      (iter (next a) (+ (term a) result))))
-  (iter a 0))
-  
 (define (stirling-s2 n k)
   (cond
     ((> k n) 0)

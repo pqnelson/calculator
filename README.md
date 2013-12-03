@@ -20,8 +20,10 @@ On the other hand, these constants are precise to 50+ digits.
 
 ## Future Directions
 
-It would be nice to refactor the code into self-contained files. This would
-be the first thing on my "to do" list.
+There should be a clean way to refactor the code. I split out the utility
+functions, but it seems like I should be able to factor our the logarithms,
+continued fractions, exponentiation, trigonometric functions into their
+respective files. Perhaps I need to think about this more.
 
 Well, since we haven't considered special functions, that might be a direction.
 
