@@ -290,7 +290,7 @@
 (define (real-ln z)
   ((lambda (y)
      (+ y
-        (ln-iterate (/ c (exp y)))))
+        (ln-iterate (/ z (exp y)))))
     (approx-real-ln z)))
 
 (define (exact-ln z)
@@ -300,7 +300,7 @@
     (real-ln z)))
 
 (define (ln z)
-  (* 1.0 (exact-ln (* 1.0 z))))
+  (exact-ln (* 1.0 z)))
 
 ;; base-2 logarithm
 (define (lg x)

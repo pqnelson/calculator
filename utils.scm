@@ -34,6 +34,17 @@
 (define (inc x)
   (+ 1 x))
 
+(define (square x)
+  (* x x))
+
+(define (negative? x)
+  (< x 0))
+
+(define (abs x)
+  (if (negative? x)
+    (- x)
+    x))
+
 (define (float= a b)
   (<= 
     (/ (abs (- a b))
@@ -44,9 +55,18 @@
   (and (number? z)
        (not (real? z))))
 
+(define (real-number? z)
+  (and (real? z)
+       (not (complex? z))))
+
+(define :+inf.0 (/ 1.0 0.0))
+(define :-inf.0 (/ -1.0 0.0))
+(define :+inf.i (/ +i 0.0))
+(define :-inf.i (/ -i 0.0))
+
 (define (real-infinite? x)
-  (and (flo:flonum? x)
-       (not (flo:finite? x))))
+  (or (eqv? x :+inf.0)
+      (eqv? x :-inf.0)))
 
 (define (infinite? z)
   (if (complex-number? z)
@@ -57,17 +77,15 @@
 (define (finite? z)
   (not (infinite? z)))
 
-(define :+inf.0 (/ 1.0 0.0))
-(define :-inf.0 (/ -1.0 0.0))
-(define :+inf.i (/ +i 0.0))
-(define :-inf.i (/ -i 0.0))
-
 (define (newtons-method f deriv guess n)
   ((lambda (iterate)
-     (if (or (> n 53) (float= (* 1.0 (- guess iterate)) (* 1.0 guess)))
+     (if (or (> n 53) 
+              (float= (- guess iterate) 
+                      guess))
        (- guess iterate)
        (newtons-method f deriv (- guess iterate) (inc n))))
-   (/ (f guess) (deriv guess))))
+   (/ (f guess) 
+      (deriv guess))))
 
 (define (sum term a next b)
   (define (iter a result)
