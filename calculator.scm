@@ -24,55 +24,98 @@
 
 (load "utils.scm")
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Square root
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (newtons-sqrt x guess k)
+  (newtons-method
+    (lambda (t) (- (square t) x))
+    (lambda (t) (* 2 t))
+    (/ (inc x) 2)
+    k))
+
+(define (real-sqrt x)
+  (cond
+   ((negative? x) (* +i (real-sqrt (abs x))))
+   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
+   (else (newtons-sqrt x (/ (inc x) 2) 7))))
+
+(define :rt2 (newtons-sqrt 2 7/5 8))
+
+(define (sqrt x)
+  (if (complex-number? x)
+    (* (real-sqrt (magnitude x))
+      (exp (* +i (angle x) (/ 1 2))))
+    (real-sqrt x)))
+
 ;; wikipedia's notation for a generalized continued fraction
-(define (generalized-cont-frac a b k)
-  (define (recur i) 
-    (if (> i k) 
-      0 
-      (/ (a i) 
-         (+ (b i) (recur (inc i)))))) 
-  (recur 1)) 
+(define (generalized-cont-frac a b n)
+  (define (next-term current-term prev-term k)
+    (+ (* (b k) current-term)
+       (* (a k) prev-term)))
+  (define (iter A-current A-prev B-current B-prev k)
+    (if (> k n)
+      (/ (next-term A-current A-prev k) 
+         (next-term B-current B-prev k))
+      (iter (next-term A-current A-prev k) A-current
+            (next-term B-current B-prev k) B-current
+            (inc k))))
+  (iter (+ (a 1) (* (b 1) (b 0))) 
+        (b 0)
+        (b 1) 
+        1 
+        2))
 
 ;; a continued fraction is a generalized continued fraction with a=1
 (define (cont-frac b k)
   (generalized-cont-frac (lambda (i) 1) b k))
 
 (define (euler-cont-frac-term k)
-  (if (= k 1)
-    1
-    (* 2 (- (* 2 k) 1))))
+  (cond
+    ((and (> k 1) (odd? k))
+       (- (* 2 k) 1))
+    ((and (> k 1) (even? k))
+       (* 4
+          (- (* 2 k)
+             1)))
+    ((= k 1) 1/2)
+    ((= k 0) 1)
+    (else 0)))
 
 (define (euler-e k)
-  (inc (* 2 (cont-frac euler-cont-frac-term k))))
+  (generalized-cont-frac (lambda (j) 1) euler-cont-frac-term k))
 
 ;; (euler-e 7) => 2.7182818284590455
-(define :e (euler-e 20))
+(define :e (euler-e 20)) ;; good to 65 digits
 
 (define (phi k)
-  (inc (cont-frac (lambda (i) 1) k)))
+  (cont-frac (lambda (i) 1) k))
 
 ;; (phi 36) =>  1.618033988749894
-(define :golden-ratio (phi 36))
+;; (define :golden-ratio (phi 36))
 
 (define (tan-cf x k)
   (generalized-cont-frac
     (lambda (i) (if (= 1 i) x (- (square x))))
-    (lambda (i) (- (* 2 i) 1))
+    (lambda (i) (if (> i 0) (- (* 2 i) 1) 0))
     k))
 
 (define (euler-arctan z k)
   (generalized-cont-frac
     (lambda (j)
-      (if (= j 1)
-        z
+      (if (> j 1) 
         (square (* z 
-                   (- (* 2 j) 3)))))
+                   (- (* 2 j) 3)))
+        z))
     (lambda (j)
-      (if (= j 1)
-        1
-        (- (- (* 2 j) 1)
-           (* (- (* 2 j) 3) 
-              (square z)))))
+      (cond
+        ((> j 1)
+          (- (- (* 2 j) 1)
+             (* (- (* 2 j) 3) 
+                (square z))))
+        ((= j 1) 1)
+        (else 0)))
     k))
 
 (define (gauss-arctan z k)
@@ -156,8 +199,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (fast-expt b n)
   (cond
-    ((infinite? n) (if (negative? n) 0 :+inf.0))
+    ;; ((infinite? n) (if (negative? n) 0 :+inf.0))
     ((= n 0) 1)
+    ((= b 1) 1)
+    ((= b 0) 0)
+    ((< b 0) (* (fast-expt (- b) n)
+                (exp (* +i :pi n))))
+    ((= n 1) b)
     ((< n 0) (fast-expt (/ 1 b) (- n)))
     (else (* (if (even? n) 1 b) 
              (fast-expt (* b b) (quotient n 2))))))
@@ -173,12 +221,22 @@
       (- z)
       (* (- k 1) 4))))
 
+(define (faster-exp-num z k)
+  (if (> k 1) 
+    (square z)
+    (* 2 z)))
+
+(define (faster-exp-den z k)
+  (cond
+    ((> k 1) (- (* 4 k) 2))
+    ((= k 1) (- 2 z))
+    (else 1)))
+
 (define (exp-cf z k)
-  (inc
-    (generalized-cont-frac
-      (lambda (j) (euler-exp-a z j))
-      (lambda (j) (euler-exp-b z j))
-      k)))
+  (generalized-cont-frac
+    (lambda (j) (faster-exp-num z j))
+    (lambda (j) (faster-exp-den z j))
+    k))
 
 (define (real-exp z)
   (* (fast-expt :e (truncate z))
@@ -257,30 +315,50 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://en.wikipedia.org/wiki/Logarithm#Power_series
 (define (ln-series z)
-  ((lambda (u)
-    (* 2
-       u
-       (+ 1
-          (* (square u)
-             (+ 1/3
-                (* 1/5 (square u)))))))
-   (/ (- z 1) (+ z 1)))) 
+  (* 2
+     (/ (- z 1) (+ z 1))
+     ((lambda (u)
+      (+ 1
+         (* u
+            (+ 1/3
+               (* u
+                  (+ 1/5
+                     (* u
+                        (+ 1/7
+                           (* u 
+                              (+ 1/9
+                                 (/ u 11)))))))))))
+      (square (/ (- z 1) (+ z 1))))))
 
 (define (ln-iterate c)
   (newtons-method 
     (lambda (x) (- (exp x) c)) 
     exp
     (ln-series c)
-    0))
+    7))
 
-(define :ln-2 (ln-iterate 2))
-(define :ln-10 (ln-iterate 10))
+#|
+(define (ln-iterate c)
+  ((lambda (y)
+    (+ y
+       (ln-series (/ c (exp y)))))
+   (ln-series c)))
+|#
+
+(define :ln-2 (cont-frac
+  (lambda (j) (cond
+    ((and (> j 0) (even? j)) (/ 4 j))
+    ((and (> j 0) (odd? j)) j)
+    (else 0)))
+               80))
+
+(define :ln-10 (+ (* 3 :ln-2) (ln-iterate 5/4)))
 
 (define (approx-real-ln c)
   (cond 
     ((< c 0) (+ +i :pi (real-ln (- c))))
-    ((infinite? c) :+inf.0)
-    ((= c 0) :-inf.0)
+    ((infinite? c) ':+inf.0)
+    ((= c 0) ':-inf.0)
     ((= c 1) 0)
     ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
     ((> c :e) (+ (approx-real-ln (remainder c :e))
@@ -317,24 +395,6 @@
   (* (fast-expt b (truncate x))
      (exp (* (- x (truncate x)) (ln b)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Square root
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define (real-sqrt x)
-  (cond
-   ((negative? x) (* +i (real-sqrt (abs x))))
-   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
-   (else (newtons-method
-           (lambda (t) (- (square t) x))
-           (lambda (t) (* 2 t))
-           (/ (inc x) 2)
-           0))))
-
-(define (sqrt x)
-  (if (complex-number? x)
-    (* (real-sqrt (magnitude x))
-      (exp (* +i (angle x) (/ 1 2))))
-    (real-sqrt x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Inverse Hyperbolic Trig Functions
@@ -397,4 +457,3 @@
                 1
                 inc
                 k))))
-          

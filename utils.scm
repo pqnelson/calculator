@@ -45,11 +45,19 @@
     (- x)
     x))
 
+(define *machine-epsilon*
+  (let loop ((e 1.0))
+     (if (= 1.0 (+ e 1.0))
+         (* 2 e)
+         (loop (/ e 2)))))
+
+(define *sqrt-machine-epsilon* (sqrt *machine-epsilon*))
+
 (define (float= a b)
-  (<= 
+  (<
     (/ (abs (- a b))
        (/ (+ 1.0 (min (abs a) (abs b))) 2))
-    1e-16))
+    *machine-epsilon*))
 
 (define (complex-number? z)
   (and (number? z)
@@ -59,14 +67,20 @@
   (and (real? z)
        (not (complex? z))))
 
+#|
 (define :+inf.0 (/ 1.0 0.0))
 (define :-inf.0 (/ -1.0 0.0))
 (define :+inf.i (/ +i 0.0))
 (define :-inf.i (/ -i 0.0))
+|#
+
+(define (real-finite? x)
+  (and (flo:flonum? x)
+       (flo:finite? x)))
 
 (define (real-infinite? x)
-  (or (eqv? x :+inf.0)
-      (eqv? x :-inf.0)))
+  (and (flo:flonum? x)
+       (not (flo:finite? x))))
 
 (define (infinite? z)
   (if (complex-number? z)
@@ -79,7 +93,7 @@
 
 (define (newtons-method f deriv guess n)
   ((lambda (iterate)
-     (if (or (> n 53) 
+     (if (or (> n 7) 
               (float= (- guess iterate) 
                       guess))
        (- guess iterate)
@@ -93,3 +107,10 @@
       result
       (iter (next a) (+ (term a) result))))
   (iter a 0))
+
+(define (quotient a b)
+  (truncate (/ a b)))
+
+(define (remainder a b)
+  (- a 
+    (* b (quotient a b))))
