@@ -25,6 +25,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (complex-number? z)
+  (and (number? z)
+       (not (real? z))))
+
+(define (real-number? z)
+  (and (real? z)
+       (not (complex? z))))
+
 (define (zero? x)
   (= 0 x))
 
@@ -41,9 +49,10 @@
   (< x 0))
 
 (define (abs x)
-  (if (negative? x)
-    (- x)
-    x))
+  (cond
+    ((complex-number? x) (magnitude x))
+    ((negative? x) (- x))
+    (else x)))
 
 (define *machine-epsilon*
   (let loop ((e 1.0))
@@ -59,13 +68,6 @@
        (/ (+ 1.0 (min (abs a) (abs b))) 2))
     *machine-epsilon*))
 
-(define (complex-number? z)
-  (and (number? z)
-       (not (real? z))))
-
-(define (real-number? z)
-  (and (real? z)
-       (not (complex? z))))
 
 #|
 (define :+inf.0 (/ 1.0 0.0))
