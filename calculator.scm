@@ -23,25 +23,30 @@
 ;; SOFTWARE.
 
 (load "utils.scm")
-
+(log/info "Loading continued fractions...")
+(load "continued-fraction.scm")
+(log/info "Loading Logarithms...")
+(load "logarithm.scm")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Square root
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Loading the square root methods...")
+
 (define (newtons-sqrt x guess k)
   (newtons-method
     (lambda (t) (- (square t) x))
     (lambda (t) (* 2 t))
-    (/ (inc x) 2)
+    guess
     k))
+
+(define :rt2 (newtons-sqrt 2 7/5 8))
 
 (define (real-sqrt x)
   (cond
    ((negative? x) (* +i (real-sqrt (abs x))))
-   ((> (abs x) 100) (* 10 (real-sqrt (/ x 100))))
+   ((> x 100) (* 10 (real-sqrt (/ x 100))))
    (else (newtons-sqrt x (/ (inc x) 2) 7))))
-
-(define :rt2 (newtons-sqrt 2 7/5 8))
 
 (define (sqrt x)
   (if (complex-number? x)
@@ -50,27 +55,6 @@
     (real-sqrt x)))
 
 ;; wikipedia's notation for a generalized continued fraction
-(define (generalized-cont-frac a b n)
-  (define (next-term current-term prev-term k)
-    (+ (* (b k) current-term)
-       (* (a k) prev-term)))
-  (define (iter A-current A-prev B-current B-prev k)
-    (if (> k n)
-      (/ (next-term A-current A-prev k) 
-         (next-term B-current B-prev k))
-      (iter (next-term A-current A-prev k) A-current
-            (next-term B-current B-prev k) B-current
-            (inc k))))
-  (iter (+ (a 1) (* (b 1) (b 0))) 
-        (b 0)
-        (b 1) 
-        1 
-        2))
-
-;; a continued fraction is a generalized continued fraction with a=1
-(define (cont-frac b k)
-  (generalized-cont-frac (lambda (i) 1) b k))
-
 (define (euler-cont-frac-term k)
   (cond
     ((and (> k 1) (odd? k))
@@ -87,13 +71,15 @@
   (generalized-cont-frac (lambda (j) 1) euler-cont-frac-term k))
 
 ;; (euler-e 7) => 2.7182818284590455
+(log/info "Defining :e")
 (define :e (euler-e 20)) ;; good to 65 digits
 
-(define (phi k)
+(define (phi-cf k)
   (cont-frac (lambda (i) 1) k))
 
 ;; (phi 36) =>  1.618033988749894
-;; (define :golden-ratio (phi 36))
+(log/info "Defining :golden-ratio")
+(define :golden-ratio (/ (+ 1 (sqrt 5)) 2))
 
 (define (tan-cf x k)
   (generalized-cont-frac
@@ -129,6 +115,7 @@
     k))
 
 ;; see, e.g., http://en.wikipedia.org/wiki/Computing_%CF%80#Other_classical_formulae
+(log/info "Defining :pi and friends...")
 (define :pi (+ (* 20 (euler-arctan (/ 1 7) 45))
                (* 8 (euler-arctan (/ 3 79) 45))))
 (define :2pi (* 2 :pi))
@@ -171,6 +158,7 @@
 ;; Trigonometric functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; need 8 terms to get machine precision after range-reduction
+(log/info "Defining Trigonometric functions...")
 (define (sine-taylor-series x)
   (define (iter k result)
     (if (= 0 k)
@@ -197,13 +185,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Exponentiation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Defining exponentiation...")
 (define (fast-expt b n)
   (cond
     ;; ((infinite? n) (if (negative? n) 0 :+inf.0))
     ((= n 0) 1)
     ((= b 1) 1)
     ((= b 0) 0)
-    ((< b 0) (* (fast-expt (- b) n)
+    ((< b 0) (* (fast-expt (abs b) n)
                 (exp (* +i :pi n))))
     ((= n 1) b)
     ((< n 0) (fast-expt (/ 1 b) (- n)))
@@ -239,8 +228,13 @@
     k))
 
 (define (real-exp z)
-  (* (fast-expt :e (truncate z))
-     (exp-cf (- z (truncate z)) 25)))
+  (cond
+    ((zero? z) 1)
+    ((= z 1) :e)
+    ((= z -1) (/ 1 :e))
+    ((> (abs z) :ln-2) (* (fast-expt 2 (quotient z :ln-2))
+                          (real-exp (remainder z :ln-2))))
+    (else (exp-cf z 25))))
 
 (define (exp z)
   (if (complex-number? z)
@@ -252,6 +246,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hyperbolic trigonometric functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Defining hyperbolic trigonometric functions...")
+
 (define (sinh x)
   (/ (- (exp x)
         (exp (- x)))
@@ -279,6 +275,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Trigonometric Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Finishing the trigonometric functions...")
 (define (sin z)
   (if (complex-number? z)
     (+ (* (real-sin (real-part z))
@@ -313,84 +310,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; logarithms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; http://en.wikipedia.org/wiki/Logarithm#Power_series
-(define (ln-series z)
-  (* 2
-     (/ (- z 1) (+ z 1))
-     ((lambda (u)
-      (+ 1
-         (* u
-            (+ 1/3
-               (* u
-                  (+ 1/5
-                     (* u
-                        (+ 1/7
-                           (* u 
-                              (+ 1/9
-                                 (/ u 11)))))))))))
-      (square (/ (- z 1) (+ z 1))))))
 
-(define (ln-iterate c)
-  (newtons-method 
-    (lambda (x) (- (exp x) c)) 
-    exp
-    (ln-series c)
-    7))
-
-#|
-(define (ln-iterate c)
-  ((lambda (y)
-    (+ y
-       (ln-series (/ c (exp y)))))
-   (ln-series c)))
-|#
-
-(define :ln-2 (cont-frac
-  (lambda (j) (cond
-    ((and (> j 0) (even? j)) (/ 4 j))
-    ((and (> j 0) (odd? j)) j)
-    (else 0)))
-               80))
-
-(define :ln-10 (+ (* 3 :ln-2) (ln-iterate 5/4)))
-
-(define (approx-real-ln c)
-  (cond 
-    ((< c 0) (+ +i :pi (real-ln (- c))))
-    ((infinite? c) ':+inf.0)
-    ((= c 0) ':-inf.0)
-    ((= c 1) 0)
-    ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
-    ((> c :e) (+ (approx-real-ln (remainder c :e))
-                 (quotient c :e)))
-    (else (ln-iterate c))))
-
-(define (real-ln z)
-  ((lambda (y)
-     (+ y
-        (ln-iterate (/ z (exp y)))))
-    (approx-real-ln z)))
-
-(define (exact-ln z)
-  (if (complex-number? z)
-    (+ (real-ln (magnitude z))
-       (* +i (angle z)))
-    (real-ln z)))
-
-(define (ln z)
-  (exact-ln (* 1.0 z)))
-
-;; base-2 logarithm
-(define (lg x)
-  (/ (ln x) :ln-2))
-
-;; base-10 logarithm
-(define (log x)
-  (/ (ln x) :ln-10))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Power function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Power function...")
 (define (pow b x)
   (* (fast-expt b (truncate x))
      (exp (* (- x (truncate x)) (ln b)))))
@@ -399,6 +324,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Inverse Hyperbolic Trig Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Defining inverse hyperbolic trig functions...")
 (define (arctan z)
   (if (complex-number? z)
     (* (/ +i 2)
@@ -425,6 +351,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; factorials
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Factorials...")
 (define (factorial n)
   (fact-iter 1 1 n))
 

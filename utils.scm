@@ -114,3 +114,9 @@
 (define (remainder a b)
   (- a 
     (* b (quotient a b))))
+
+;; logging info
+(define (log/info msg)
+  (write-string msg)
+  (newline)
+  (flush-output))
