@@ -33,6 +33,13 @@
   (and (real? z)
        (not (complex? z))))
 
+(define (sgn x)
+  (if (> x 0)
+    1
+    (if (< x 0)
+      -1
+      0)))
+
 (define (zero? x)
   (= 0 x))
 
@@ -95,7 +102,7 @@
 
 (define (newtons-method f deriv guess n)
   ((lambda (iterate)
-     (if (or (> n 7) 
+     (if (or (> n 13) 
               (float= (- guess iterate) 
                       guess))
        (- guess iterate)

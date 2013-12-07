@@ -13,21 +13,17 @@ the calculator, it's just written from scratch.
 
 ## Known Issues
 
-It takes a minute to initialize, because I'm using rational approximations for 
-`:pi`, `:e`, etc.
-
-On the other hand, these constants are precise to 50+ digits.
+I need some way to handle infinity as a number, but in a "platform independent"
+way.
 
 ## Future Directions
 
-There should be a clean way to refactor the code. I split out the utility
-functions, but it seems like I should be able to factor our the logarithms,
-continued fractions, exponentiation, trigonometric functions into their
-respective files. Perhaps I need to think about this more.
+Continue refactoring the code. I think it would be nice if scheme had some
+module code, so I wouldn't re-load files unnecessarily.
+
+Add unit tests!
 
 Well, since we haven't considered special functions, that might be a direction.
-
-It would be nice to speed up the initial load.
 
 A pipe dream would be to turn this into a full-blown computer algebra system.
 That would probable consume my life.
