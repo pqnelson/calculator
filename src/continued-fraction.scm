@@ -22,7 +22,7 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(load "utils.scm")
+(import "src/utils.scm")
 
 (define (generalized-cont-frac a b n)
   (define (next-term current-term prev-term k)

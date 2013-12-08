@@ -22,8 +22,8 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(load "exponential.scm")
-(load "logarithm.scm")
+(import "src/exponential.scm")
+(import "src/logarithm.scm")
 
 (define (tan-cf x k)
   (generalized-cont-frac

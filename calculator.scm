@@ -22,12 +22,13 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(load "utils.scm")
-(load "continued-fraction.scm")
-(load "exponential.scm")
-(load "logarithm.scm")
-(load "trig.scm")
-(load "hyperbolic-trig.scm")
+(load "src/mod-utils.scm")
+(import "src/utils.scm")
+(import "src/continued-fraction.scm")
+(import "src/exponential.scm")
+(import "src/logarithm.scm")
+(import "src/trig.scm")
+(import "src/hyperbolic-trig.scm")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Square root

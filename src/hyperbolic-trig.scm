@@ -21,8 +21,8 @@
 ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
-(load "logarithm.scm")
-(load "exponential.scm")
+(import "src/logarithm.scm")
+(import "src/exponential.scm")
 
 (define (sinh-cf-a x k)
   (cond
@@ -134,11 +134,16 @@
          0))
    n))
 
-(log/info "Defining :golden-ratio")
+(log/info "\nDefining :golden-ratio")
 (define :golden-ratio (/ (+ 1 (sqrt 5)) 2))
 (assert (float= (/ 1 :golden-ratio)
                 (- :golden-ratio 1)))
 (define :ln-phi (ln :golden-ratio))
+
+(define (phi-cf k)
+  (cont-frac (lambda (i) 1) k))
+(assert (float= (phi-cf 38) :golden-ratio))
+(assert (not (float= (phi-cf 37) :golden-ratio)))
 
 (define (lambert-tanh x)
   (cond

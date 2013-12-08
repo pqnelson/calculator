@@ -21,7 +21,7 @@
 ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
-(load "continued-fraction.scm")
+(import "src/continued-fraction.scm")
 
 (define (euler-cont-frac-term k)
   (cond
@@ -39,7 +39,7 @@
   (generalized-cont-frac (lambda (j) 1) euler-cont-frac-term k))
 
 ;; (euler-e 7) => 2.7182818284590455
-(log/info "Defining :e")
+(log/info "\nDefining :e")
 (define :e (euler-e 20)) ;; good to 65 digits
 (assert (float= (euler-e 8) :e))
 
@@ -47,6 +47,7 @@
   (cont-frac (lambda (i) 1) k))
 (assert (float= (phi-cf 37) :golden-ratio))
 (assert (not (float= (phi-cf 36) :golden-ratio)))
+
 
 (log/info "Defining exponentiation...")
 (define (fast-expt b n)

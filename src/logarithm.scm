@@ -22,8 +22,8 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(load "utils.scm")
-(load "continued-fraction.scm")
+(import "src/utils.scm")
+(import "src/continued-fraction.scm")
 ;; http://en.wikipedia.org/wiki/Logarithm#Power_series
 (define (ln-series z)
   (* 2
@@ -71,7 +71,7 @@
         (ln-series (/ c (exp y)))))
    (ln-series c)))
 
-(log/info "Defining :ln-2...")
+(log/info "\nDefining :ln-2...")
 (define :ln-2 (euler-ln-cf 2 40))
 
 (assert (< :ln-2 1))

@@ -105,8 +105,10 @@ simple [1; 1, 1, 1, ...].
   (+ 1 (* 1.0 (cont-frac (lambda (i) 1) k))))
 
 ;; (phi 36) =>  1.618033988749894
-(define :golden-ratio (phi 36))
+(define :golden-ratio (/ (1 + (sqrt 5)) 2))
 ```
+
+We have asserts to see how good `(phi k)` is at approximating `:golden-ratio`.
 
 ### ArcTangent Function and other Inverse Trigonometric Functions
 The inverse tangent function ("arc-tangent" function) can be computed using 
