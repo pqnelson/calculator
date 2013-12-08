@@ -74,8 +74,11 @@
 (log/info "Defining :ln-2...")
 (define :ln-2 (euler-ln-cf 2 40))
 
+(assert (< :ln-2 1))
+
 (log/info "Defining :ln-10...")
 (define :ln-10 (+ (* 3 :ln-2) (euler-ln-cf 5/4 40)))
+(assert (> :ln-10 2))
 
 (define (approx-real-ln c)
   (cond 

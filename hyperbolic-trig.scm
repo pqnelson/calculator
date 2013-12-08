@@ -136,6 +136,8 @@
 
 (log/info "Defining :golden-ratio")
 (define :golden-ratio (/ (+ 1 (sqrt 5)) 2))
+(assert (float= (/ 1 :golden-ratio)
+                (- :golden-ratio 1)))
 (define :ln-phi (ln :golden-ratio))
 
 (define (lambert-tanh x)

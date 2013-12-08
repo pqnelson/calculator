@@ -41,9 +41,12 @@
 ;; (euler-e 7) => 2.7182818284590455
 (log/info "Defining :e")
 (define :e (euler-e 20)) ;; good to 65 digits
+(assert (float= (euler-e 8) :e))
 
 (define (phi-cf k)
   (cont-frac (lambda (i) 1) k))
+(assert (float= (phi-cf 37) :golden-ratio))
+(assert (not (float= (phi-cf 36) :golden-ratio)))
 
 (log/info "Defining exponentiation...")
 (define (fast-expt b n)

@@ -126,6 +126,8 @@
   (- a 
      (* b (quotient a b))))
 
+(define void (if #f #f))
+
 ;; logging info
 (define (log/info msg)
   (write-string msg)
