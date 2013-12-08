@@ -40,7 +40,7 @@
 
 ;; (euler-e 7) => 2.7182818284590455
 (log/info "\nDefining :e")
-(define :e (euler-e 20)) ;; good to 65 digits
+(define :e (euler-e 30)) ;; good to 100 digits
 (assert (float= (euler-e 8) :e))
 
 (log/info "Defining exponentiation...")
@@ -68,9 +68,9 @@
          (- z)
          (* (- k 1) 4))))
 
-(define (faster-exp-num z k)
+(define (faster-exp-num z z-squared k)
   (if (> k 1) 
-      (square z)
+      z-squared
       (* 2 z)))
 
 (define (faster-exp-den z k)
@@ -81,18 +81,18 @@
 
 (define (exp-cf z k)
   (generalized-cont-frac
-   (lambda (j) (faster-exp-num z j))
+   (lambda (j) (faster-exp-num z (square z) j))
    (lambda (j) (faster-exp-den z j))
    k))
 
 (define (real-exp z)
   (cond
-   ((infinite? z) (if (negative? z) 0 (error "exponentiation passed +inf")))
+   ((infinite? z) (if (negative? z) 0 z))
    ((zero? z) 1)
    ((= z 1) :e)
    ((= z -1) (/ 1 :e))
    ((> (abs z) :ln-2) (* (fast-expt 2 (quotient z :ln-2))
-                         (real-exp (remainder z :ln-2))))
+                         (exp-cf (remainder z :ln-2) 25)))
    (else (exp-cf z 25))))
 
 (define (exp z)
