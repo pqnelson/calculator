@@ -30,17 +30,15 @@
        (* (a k) prev-term)))
   (define (iter A-current A-prev B-current B-prev k)
     (if (> k n)
-      (/ A-current 
-         B-current)
-;;      (/ (next-term A-current A-prev k) 
-;;         (next-term B-current B-prev k))
-      (iter (next-term A-current A-prev k) A-current
-            (next-term B-current B-prev k) B-current
-            (inc k))))
+        (/ A-current 
+           B-current)
+        (iter (next-term A-current A-prev k) A-current
+              (next-term B-current B-prev k) B-current
+              (inc k))))
   (iter (+ (a 1) (* (b 1) (b 0))) 
         (b 0)
         (b 1) 
-        1 
+        1
         2))
 
 ;; a continued fraction is a generalized continued fraction with a=1

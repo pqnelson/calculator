@@ -27,9 +27,10 @@
 ;; http://en.wikipedia.org/wiki/Logarithm#Power_series
 (define (ln-series z)
   (* 2
-     (/ (- z 1) (+ z 1))
+     (/ (- z 1) 
+        (+ z 1))
      ((lambda (u)
-      (+ 1
+        (+ 1
          (* u
             (+ 1/3
                (* u
@@ -43,31 +44,31 @@
 
 (define (euler-ln-a z k)
   (if (> k 1) 
-    (- (square (* (- k 1) z)))
-    (* 2 z)))
+      (- (square (* (- k 1) z)))
+      (* 2 z)))
 
 (define (euler-ln-b j)
   (if (> j 0)
-    (- (* 2 j) 1)
-    0))
+      (- (* 2 j) 1)
+      0))
 
 (define (raw-euler-ln-cf z n)
   (generalized-cont-frac
-    (lambda (k)
-      (euler-ln-a z k))
-    euler-ln-b
-    n))
+   (lambda (k)
+     (euler-ln-a z k))
+   euler-ln-b
+   n))
 
 (define (euler-ln-cf z n)
   (raw-euler-ln-cf 
-    (/ (- z 1)
-       (+ z 1))
-    n))
+   (/ (- z 1)
+      (+ z 1))
+   n))
 
 (define (ln-iterate c)
   ((lambda (y)
-    (+ y
-       (ln-series (/ c (exp y)))))
+     (+ y
+        (ln-series (/ c (exp y)))))
    (ln-series c)))
 
 (log/info "Defining :ln-2...")
@@ -78,26 +79,26 @@
 
 (define (approx-real-ln c)
   (cond 
-    ((< c 0) (+ +i :pi (real-ln (- c))))
-    ((infinite? c) ':+inf.0)
-    ((= c 0) ':-inf.0)
-    ((= c 1) 0)
-    ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
-    ((> c :e) (+ (approx-real-ln (remainder c :e))
-                 (quotient c :e)))
-    (else (euler-ln-cf c 25))))
+   ((< c 0) (+ +i :pi (real-ln (- c))))
+   ((infinite? c) ':+inf.0)
+   ((= c 0) ':-inf.0)
+   ((= c 1) 0)
+   ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
+   ((> c :e) (+ (approx-real-ln (remainder c :e))
+                (quotient c :e)))
+   (else (euler-ln-cf c 25))))
 
 (define (real-ln z)
   ((lambda (y)
      (+ y
         (ln-iterate (/ z (exp y)))))
-    (approx-real-ln z)))
+   (approx-real-ln z)))
 
 (define (exact-ln z)
   (if (complex-number? z)
-    (+ (real-ln (magnitude z))
-       (* +i (angle z)))
-    (real-ln z)))
+      (+ (real-ln (magnitude z))
+         (* +i (angle z)))
+      (real-ln z)))
 
 (define (ln z)
   (exact-ln (* 1.0 z)))
