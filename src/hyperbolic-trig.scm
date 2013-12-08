@@ -143,7 +143,7 @@
 (define (phi-cf k)
   (cont-frac (lambda (i) 1) k))
 (assert (float= (phi-cf 38) :golden-ratio))
-(assert (not (float= (phi-cf 37) :golden-ratio)))
+(assert (not (float= (phi-cf 36) :golden-ratio)))
 
 (define (lambert-tanh x)
   (cond
