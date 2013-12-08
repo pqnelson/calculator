@@ -127,12 +127,8 @@
         (sine-taylor-series (- x (* :pi n)))))
    (sine-range-reduce x)))
 
-(assert (= (real-sin 0) 0))
-
 (define (real-cos x)
   (real-sin (- :pi/2 x)))
-
-(assert (float= (real-cos 0.0) 1.0))
 
 (define (sin z)
   (if (complex-number? z)

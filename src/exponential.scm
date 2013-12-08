@@ -38,10 +38,8 @@
 (define (euler-e k)
   (generalized-cont-frac (lambda (j) 1) euler-cont-frac-term k))
 
-;; (euler-e 7) => 2.7182818284590455
 (log/info "\nDefining :e")
 (define :e (euler-e 30)) ;; good to 100 digits
-(assert (float= (euler-e 8) :e))
 
 (log/info "Defining exponentiation...")
 (define (fast-expt b n)
