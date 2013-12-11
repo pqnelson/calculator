@@ -60,11 +60,15 @@
 
 ;; see, e.g., http://en.wikipedia.org/wiki/Computing_%CF%80#Other_classical_formulae
 (log/info "Defining :pi and friends...")
-(define :pi (+ (* 20 (euler-arctan (/ 1 7) 45))
-               (* 8 (euler-arctan (/ 3 79) 45))))
+(define :pi (rationalize->exact
+             (+ (* 20 (euler-arctan (/ 1 7) 45))
+                (* 8 (euler-arctan (/ 3 79) 45)))
+             (expt 10 -78))) ;; it's only good to 78 digits anyways...
 (define :2pi (* 2 :pi))
-(define :pi/4 (+ (* 5 (euler-arctan (/ 1 7) 45))
-                 (* 2 (euler-arctan (/ 3 79) 45))))
+(define :pi/4 (rationalize->exact
+               (+ (* 5 (euler-arctan (/ 1 7) 45))
+                  (* 2 (euler-arctan (/ 3 79) 45)))
+               (expt 10 -78))) ;; again, good up to 78 digits
 (define :pi/2 (* :pi/4 2))
 
 ;; inverse trig functions
