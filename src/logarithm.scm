@@ -101,7 +101,10 @@
       (real-ln z)))
 
 (define (ln z)
-  (exact-ln (* 1.0 z)))
+  (cond
+   ((= 1 z) 0)
+   ((= :e z) 1)
+   (else (exact-ln (* 1.0 z)))))
 
 ;; base-2 logarithm
 (define (lg x)

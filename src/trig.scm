@@ -83,19 +83,18 @@
    (else (euler-arctan x 25))))
 
 (define (arctan x)
-  (real-arctan x))
+  (/ (-
+      (ln (inc (* +i x)))
+      (ln (inc (* -i x))))
+     (* 2 +i)))
 
 (define (arccot x) 
   (arctan (/ 1 x)))
 
-(define (arcsin x)
-  (* 2 
-     (arctan 
-      (/ x 
-         (inc 
-          (sqrt 
-           (- 1 
-              (square x))))))))
+(define (arcsin z)
+  (* -i
+     (ln (+ (* +i z)
+            (sqrt (- 1 (square z)))))))
 
 (define (arccsc x) 
   (arcsin (/ 1 x)))

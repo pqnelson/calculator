@@ -47,6 +47,7 @@
 
 (define (real-sqrt x)
   (cond
+   ((zero? x) 0)
    ((negative? x) (* +i (real-sqrt (abs x))))
    ((> x 100) (* 10 (real-sqrt (/ x 100))))
    (else (newtons-sqrt x (/ (inc x) 2) 7))))
