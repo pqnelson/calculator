@@ -83,11 +83,14 @@
    (else (euler-arctan x 25))))
 
 (define (arctan x)
-  (/ (-
-      (ln (inc (* +i x)))
-      (ln (inc (* -i x))))
-     (* 2 +i)))
-
+  (cond 
+   ((finite? x) (/ (-
+                    (ln (inc (* +i x)))
+                    (ln (inc (* -i x))))
+                   (* 2 +i)))
+   ((positive? x) :pi/2)
+   (else (- :pi/2))))
+   
 (define (arccot x) 
   (arctan (/ 1 x)))
 
@@ -152,8 +155,12 @@
       (real-cos z)))
 
 (define (tan z)
-  (/ (sin z)
-     (cos z)))
+  (lambda (c)
+    (if (zero? c)
+        (* (sin z) :+inf.0)
+        (/ (sin z)
+           c))
+    (cos z)))
 
 (define (csc x)
   (/ 1 (sin x)))
@@ -162,4 +169,8 @@
   (/ 1 (cos x)))
 
 (define (cot x)
-  (/ 1 (tan x)))
+  ((lambda (s)
+     (if (zero? s)
+         (* (cos z) :+inf.0)
+         (/ (cos z) s)))
+   (sin z)))
