@@ -75,12 +75,17 @@
       (/ (+ 1.0 (min (abs a) (abs b))) 2))
    *machine-epsilon*))
 
-#|
-(define :+inf.0 (/ 1.0 0.0))
-(define :-inf.0 (/ -1.0 0.0))
-(define :+inf.i (/ +i 0.0))
-(define :-inf.i (/ -i 0.0))
-|#
+;;; helpers for infinities
+(define +inf.0 ((make-primitive-procedure 'CAST-INTEGER-TO-IEEE754-DOUBLE 1)
+                #b0111111111110000000000000000000000000000000000000000000000000000))
+(define -inf.0 ((make-primitive-procedure 'CAST-INTEGER-TO-IEEE754-DOUBLE 1)
+                #b1111111111110000000000000000000000000000000000000000000000000000))
+
+;; aliases to be consistent with how I'm defining constants...
+(define :+inf.0 +inf.0)
+(define :-inf.0 -inf.0)
+(define :+inf.i (* +i :+inf.0))
+(define :-inf.i (* -i :+inf.0))
 
 (define (real-finite? x)
   (and (flo:flonum? x)
