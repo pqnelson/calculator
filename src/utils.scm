@@ -53,10 +53,11 @@
   (* x x))
 
 (define (negative? x)
-  (< x 0))
+  (< x 0.0))
 
 (define (abs x)
   (cond
+   ((infinite? x) :+inf.0)
    ((complex-number? x) (magnitude x))
    ((negative? x) (- x))
    (else x)))
@@ -71,8 +72,11 @@
 
 (define (float= a b)
   (<
-   (/ (abs (- a b))
-      (/ (+ 1.0 (min (abs a) (abs b))) 2))
+     (/ (abs (- a b))
+        (/ (+ 1.0 
+              (min (abs a) 
+                   (abs b))) 
+           2))
    *machine-epsilon*))
 
 ;;; helpers for infinities

@@ -53,10 +53,16 @@
    (else (newtons-sqrt x (/ (inc x) 2) 7))))
 
 (define (sqrt x)
-  (if (complex-number? x)
-      (* (real-sqrt (magnitude x))
-         (exp (* +i (angle x) (/ 1 2))))
-      (real-sqrt x)))
+  (if (infinite? x)
+      (if (real? x)
+          (if (negative? x)
+              :+inf.i
+              :+inf.0)
+          (+ :+inf.0 :+inf.i))
+      (if (complex-number? x)
+          (* (real-sqrt (magnitude x))
+             (exp (* +i (angle x) (/ 1 2))))
+          (real-sqrt x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Power function

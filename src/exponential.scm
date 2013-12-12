@@ -44,7 +44,7 @@
 (log/info "Defining exponentiation...")
 (define (fast-expt b n)
   (cond
-   ((infinite? n) (if (negative? n) 0 ':+inf.0))
+   ((infinite? n) (if (negative? n) 0 :+inf.0))
    ((= n 0) 1)
    ((= b 1) 1)
    ((= b 0) 0)
