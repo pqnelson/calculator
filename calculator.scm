@@ -43,6 +43,10 @@
    k))
 
 (define :rt2 (newtons-sqrt 2 141421/100000 0))
+(define :rt3 (newtons-sqrt 3 1002978273411373057/579069776145402304 0))
+(define :rt5 (newtons-sqrt 5 3 0))
+(define :rt-pi (newtons-sqrt :pi (/ (inc :pi) 2) 0))
+(define :rt-e (newtons-sqrt :e (/ (inc :e) 2) 0))
 (assert (float= (square :rt2) 2))
 
 (define (real-sqrt x)

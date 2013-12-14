@@ -71,6 +71,13 @@
                (expt 10 -78))) ;; again, good up to 78 digits
 (define :pi/2 (* :pi/4 2))
 
+(define :ln-pi/4 (rationalize->exact (euler-ln-cf :pi/4 27) (expt 10 -65)))
+(define :ln-pi/2 (+ :ln-2 :ln-pi/4))
+(define :ln-pi (+ :ln-2
+                  :ln-pi/2))
+(define :ln-2pi (+ :ln-2
+                   :ln-pi))
+
 ;; inverse trig functions
 (define (real-arctan x)
   (cond

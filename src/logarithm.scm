@@ -73,7 +73,7 @@
 
 (log/info "\nDefining :ln-2...")
 (define :ln-2 (euler-ln-cf 2 40))
-
+(define :ln-3 (+ :ln-2 (euler-ln-cf 3/2 40)))
 (log/info "Defining :ln-10...")
 (define :ln-10 (+ (* 3 :ln-2) (euler-ln-cf 5/4 40)))
 
