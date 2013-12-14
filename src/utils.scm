@@ -33,15 +33,17 @@
   (and (real? z)
        (not (complex? z))))
 
-(define (sgn x)
-  (if (> x 0)
-      1
-      (if (< x 0)
-          -1
-          0)))
+(define (zero? z)
+  ((lambda (r)
+     (= r
+        (if (exact? r) 0 0.0)))
+   (magnitude z)))
 
-(define (zero? x)
-  (= 0 x))
+(define (negative? x)
+  (and (real? x) (< x 0.0)))
+
+(define (positive? x)
+  (and (real? x) (> x 0.0)))
 
 (define (even? n) 
   (zero? (remainder n 2)))
@@ -52,8 +54,12 @@
 (define (square x)
   (* x x))
 
-(define (negative? x)
-  (< x 0.0))
+(define (sgn x)
+  (if (positive? x)
+      1
+      (if (negative? x)
+          -1
+          0)))
 
 (define (abs x)
   (cond
@@ -136,6 +142,9 @@
      (* b (quotient a b))))
 
 (define void (if #f #f))
+
+(define (identity x)
+  x)
 
 ;; logging info
 (define (log/info msg)
