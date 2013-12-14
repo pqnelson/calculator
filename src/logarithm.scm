@@ -80,10 +80,11 @@
 (define (approx-real-ln c)
   (cond 
    ((< c 0) (+ +i :pi (real-ln (- c))))
-   ((infinite? c) ':+inf.0)
+   ((infinite? c) :+inf.0)
    ((= c 0) ':-inf.0)
    ((= c 1) 0)
-   ((> c 10) (+ (approx-real-ln (/ c 10)) :ln-10))
+   ((> c 10) (+ (approx-real-ln (remainder c 10))
+                (* :ln-10 (quotient c 10))))
    ((> c :e) (+ (approx-real-ln (remainder c :e))
                 (quotient c :e)))
    (else (euler-ln-cf c 25))))
