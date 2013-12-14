@@ -72,10 +72,17 @@
    (ln-series c)))
 
 (log/info "\nDefining :ln-2...")
-(define :ln-2 (euler-ln-cf 2 40))
-(define :ln-3 (+ :ln-2 (euler-ln-cf 3/2 40)))
+(define :ln-2 (rationalize->exact
+               (inc (euler-ln-cf (/ 2 :e) 45))
+               (expt 10 -100))) ;; good to 100 digits 
+(log/info "Defining :ln-3...")
+(define :ln-3 (rationalize->exact
+               (+ 1 (euler-ln-cf (/ 3 :e) 47))
+               (expt 10 -100))) ;; good to 100 digits
 (log/info "Defining :ln-10...")
-(define :ln-10 (+ (* 3 :ln-2) (euler-ln-cf 5/4 40)))
+(define :ln-10 (rationalize->exact
+                (+ (* 3 :ln-3) (euler-ln-cf 10/9 40))
+                (expt 10 -100))) ;; good to 100 digits
 
 (define (real-ln c)
   (cond 

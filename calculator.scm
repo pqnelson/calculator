@@ -42,11 +42,12 @@
    guess
    k))
 
-(define :rt2 (newtons-sqrt 2 141421/100000 0))
+(log/info "Defining :rt2 and friends...")
+(define :rt2 (newtons-sqrt 2 19175002942688032928599/13558774610046711780701 0))
 (define :rt3 (newtons-sqrt 3 1002978273411373057/579069776145402304 0))
-(define :rt5 (newtons-sqrt 5 3 0))
-(define :rt-pi (newtons-sqrt :pi (/ (inc :pi) 2) 0))
-(define :rt-e (newtons-sqrt :e (/ (inc :e) 2) 0))
+(define :rt5 (newtons-sqrt 5 25377553679502347277411602/11349187026003431978487841 0))
+(define :rt-pi (newtons-sqrt :pi 184238184425457900/103945264544593811 0))
+(define :rt-e (newtons-sqrt :e 6803184337622361001/4126339884444745657 0))
 (assert (float= (square :rt2) 2))
 
 (define (real-sqrt x)
