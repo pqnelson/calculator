@@ -77,35 +77,27 @@
 (log/info "Defining :ln-10...")
 (define :ln-10 (+ (* 3 :ln-2) (euler-ln-cf 5/4 40)))
 
-(define (approx-real-ln c)
+(define (real-ln c)
   (cond 
-   ((< c 0) (+ +i :pi (real-ln (- c))))
+   ((negative? c) (+ +i :pi (real-ln (- c))))
    ((infinite? c) :+inf.0)
-   ((= c 0) ':-inf.0)
+   ((zero? c) :-inf.0)
    ((= c 1) 0)
-   ((> c 10) (+ (approx-real-ln (remainder c 10))
-                (* :ln-10 (quotient c 10))))
-   ((> c :e) (+ (approx-real-ln (remainder c :e))
-                (quotient c :e)))
-   (else (euler-ln-cf c 25))))
-
-(define (real-ln z)
-  ((lambda (y)
-     (+ y
-        (ln-iterate (/ z (exp y)))))
-   (approx-real-ln z)))
-
-(define (exact-ln z)
-  (if (complex-number? z)
-      (+ (real-ln (magnitude z))
-         (* +i (angle z)))
-      (real-ln z)))
+   ((> c 1000) (+ (* 3 :ln-10)
+                  (approx-real-ln (/ c 1000))))
+   ((> c 10) (+ :ln-10
+                (approx-real-ln (/ c 10))))
+   ((> c :e) (+ 1
+                (approx-real-ln (/ c :e))))
+   (else (rationalize->exact (euler-ln-cf c 25) (expt 10 -50)))))
 
 (define (ln z)
   (cond
    ((= 1 z) 0)
    ((= :e z) 1)
-   (else (exact-ln (* 1.0 z)))))
+   ((complex-number? z) (+ (real-ln (magnitude z))
+                           (* +i (angle z))))
+   (else (real-ln z))))
 
 ;; base-2 logarithm
 (define (lg x)
