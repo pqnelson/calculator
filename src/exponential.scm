@@ -99,3 +99,22 @@
          (+ (real-cos (imag-part z))
             (* +i (real-sin (imag-part z)))))
       (real-exp z)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Power function
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(log/info "Power function...")
+(define (pow b x)
+  (cond
+   ((> (abs x) 1) 
+    (* (fast-expt b (truncate x))
+         (exp (* (- x 
+                    (truncate x)) 
+                 (ln b)))))
+   ((float= (abs x) 1/2)
+    (if (positive? x)
+        (sqrt b)
+        (/ 1 (sqrt b))))
+   (else
+    (exp (* x (ln b))))))
+

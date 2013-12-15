@@ -29,6 +29,7 @@
 (import "src/logarithm.scm")
 (import "src/trig.scm")
 (import "src/hyperbolic-trig.scm")
+(import "src/combinatorics.scm")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Square root
@@ -69,49 +70,3 @@
              (exp (* +i (angle x) (/ 1 2))))
           (real-sqrt x))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Power function
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(log/info "Power function...")
-(define (pow b x)
-  (* (fast-expt b (truncate x))
-     (exp (* (- x 
-                (truncate x)) 
-             (ln b)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; factorials
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(log/info "Factorials...")
-(define (factorial n)
-  (fact-iter 1 1 n))
-
-(define (fact-iter product counter max-count)
-  (if (> counter max-count) 
-      product 
-      (fact-iter (* counter product) (inc counter) max-count)))
-
-(define (choose n k)
-  (if (> k n)
-      0
-      (/ (factorial n) 
-         (* (factorial k) 
-            (factorial (- n k))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; Stirling Numbers
-;;;;;;;;;;;;;;;;;;;;;;;; 
-(define (stirling-s2 n k)
-  (cond
-   ((> k n) 0)
-   ((zero? k) (if (zero? n) 1 0))
-   ((= k 1) 1)
-   ((= n k) 1)
-   (else (sum (lambda (j)
-                (/ (* (if (even? (- k j)) 1 -1) 
-                      (fast-expt j (- n 1)))
-                   (* (factorial (- j 1))
-                      (factorial (- k j)))))
-              1
-              inc
-              k))))
