@@ -83,15 +83,20 @@
    (lambda (j) (faster-exp-den z j))
    k))
 
+;; good to ~30 digits
 (define (real-exp z)
   (cond
    ((infinite? z) (if (negative? z) 0 z))
    ((zero? z) 1)
    ((= z 1) :e)
    ((= z -1) (/ 1 :e))
-   ((> (abs z) :ln-2) (* (fast-expt 2 (quotient z :ln-2))
-                         (exp-cf (remainder z :ln-2) 25)))
-   (else (exp-cf z 25))))
+   ((>= (abs z) :ln-2) (* (fast-expt 2 (quotient z :ln-2))
+                          (real-exp (remainder z :ln-2))))
+   ((> :ln-2 (abs z) 1/2)
+    (if (negative? z)
+        (* (exp-cf (+ z 1/2) 10) (/ 1 :sqrt-e))
+        (* (exp-cf (- z 1/2) 10) :sqrt-e)))
+   (else (exp-cf z 10))))
 
 (define (exp z)
   (if (complex-number? z)

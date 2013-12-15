@@ -67,8 +67,11 @@
 
 (define (ln-iterate c)
   ((lambda (y)
-     (+ y
-        (ln-series (/ c (exp y)))))
+     (let ((r (/ c (exp y))))
+       (if (float= r 1.0)
+           y
+           (+ y
+              (ln-series r)))))
    (ln-series c)))
 
 (log/info "\nDefining :ln-2...")
@@ -89,19 +92,19 @@
    ((negative? c) (+ +i :pi (real-ln (- c))))
    ((infinite? c) :+inf.0)
    ((zero? c) :-inf.0)
-   ((= c 1) 0)
+   ((float= c 1) 0)
    ((> c 1000) (+ (* 3 :ln-10)
-                  (approx-real-ln (/ c 1000))))
+                  (real-ln (/ c 1000))))
    ((> c 10) (+ :ln-10
-                (approx-real-ln (/ c 10))))
+                (real-ln (/ c 10))))
    ((> c :e) (+ 1
-                (approx-real-ln (/ c :e))))
+                (real-ln (/ c :e))))
    (else (rationalize->exact (euler-ln-cf c 25) (expt 10 -50)))))
 
 (define (ln z)
   (cond
-   ((= 1 z) 0)
-   ((= :e z) 1)
+   ((float= 1 z) 0)
+   ((float= :e z) 1)
    ((complex-number? z) (+ (real-ln (magnitude z))
                            (* +i (angle z))))
    (else (real-ln z))))
