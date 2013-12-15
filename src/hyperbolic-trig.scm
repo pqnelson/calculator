@@ -168,13 +168,6 @@
 ;; Inverse Hyperbolic Trig Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (log/info "Defining inverse hyperbolic trig functions...")
-(define (arctan z)
-  (if (complex-number? z)
-      (* (/ +i 2)
-         (ln (/ (- 1 (* +i z))
-                (+ 1 (* +i z)))))
-      (real-arctan z)))             
-
 (define (arccosh x)
   (ln
    (+ x
@@ -186,7 +179,10 @@
       (sqrt (- (square x) 1)))))
 
 (define (arctanh x)
-  (/ 
-   (ln (/ (+ 1 x)
-          (- 1 x)))
-   2))
+  (cond
+   ((infinite? x) (* -i :pi/2))
+   ((= x 1) :+inf.0)
+   (else (/ (- (ln (+ 1 x))
+               (ln (- 1 x)))
+            2))))
+

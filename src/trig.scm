@@ -99,7 +99,9 @@
    (else (- :pi/2))))
    
 (define (arccot x) 
-  (arctan (/ 1 x)))
+  (if (zero? x) 
+      :pi/2
+      (arctan (/ 1 x))))
 
 (define (arcsin z)
   (* -i
@@ -107,14 +109,21 @@
             (sqrt (- 1 (square z)))))))
 
 (define (arccsc x) 
-  (arcsin (/ 1 x)))
+  (cond
+   ((>= (abs x) 1) (error "INVALID DOMAIN arcsc --- " x))
+   ((zero? x) :+inf.i)
+   (else (arcsin (/ 1 x)))))
 
 (define (arccos x)
   (- :pi/2
      (arcsin x)))
 
 (define (arcsec x) 
-  (arccos (/ 1 x)))
+  (cond
+   ((zero? x) :+inf.i)
+   ((finite? x) (arccos (/ 1 x)))
+   ((complex-number? x) :pi/2)
+   (else :pi/2)))
 
 ;; honest trig functions
 (define (sine-taylor-series x)
@@ -170,10 +179,16 @@
     (cos z)))
 
 (define (csc x)
-  (/ 1 (sin x)))
+  (let ((s (sin x)))
+    (if (zero? s)
+        :+inf.0
+        (/ 1 s))))
 
 (define (sec x)
-  (/ 1 (cos x)))
+  (let ((c (cos x)))
+    (if (zero? c)
+        :+inf.0
+        (/ 1 c))))
 
 (define (cot x)
   ((lambda (s)
