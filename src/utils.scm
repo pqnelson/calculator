@@ -77,13 +77,11 @@
 (define *sqrt-machine-epsilon* (sqrt *machine-epsilon*))
 
 (define (float= a b)
-  (<
-     (/ (abs (- a b))
-        (/ (+ 1.0 
-              (min (abs a) 
-                   (abs b))) 
-           2))
-   *machine-epsilon*))
+  (<= (abs (- a b))
+      (* 1/2
+         (min (abs a)
+              (abs b))
+         *machine-epsilon*)))
 
 ;;; helpers for infinities
 (define +inf.0 ((make-primitive-procedure 'CAST-INTEGER-TO-IEEE754-DOUBLE 1)
