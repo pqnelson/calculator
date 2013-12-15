@@ -94,17 +94,19 @@
 
 (define (real-ln c)
   (cond 
-   ((negative? c) (+ +i :pi (real-ln (- c))))
+   ((negative? c) (+ (* +i :pi) 
+                     (real-ln (- c))))
    ((infinite? c) :+inf.0)
    ((zero? c) :-inf.0)
    ((float= c 1) 0)
-   ((> c 1000) (+ (* 3 :ln-10)
-                  (real-ln (/ c 1000))))
-   ((> c 10) (+ :ln-10
-                (real-ln (/ c 10))))
-   ((> c :e) (+ 1
-                (real-ln (/ c :e))))
-   (else (rationalize->exact (euler-ln-cf c 25) (expt 10 -50)))))
+   ((>= c 1000) (+ (* 3 :ln-10)
+                   (real-ln (/ c 1000))))
+   ((>= c 10) (+ :ln-10
+                 (real-ln (/ c 10))))
+   ((>= c :e) (+ 1
+                 (real-ln (/ c :e))))
+   ((> 1/2 c 0) (- (real-ln (/ 1 c))))
+   (else (rationalize->exact (euler-ln-cf c 25) (expt 10 -30)))))
 
 (define (ln z)
   (cond
