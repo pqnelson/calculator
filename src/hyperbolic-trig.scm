@@ -135,8 +135,15 @@
    n))
 
 (log/info "\nDefining :golden-ratio")
-(define :golden-ratio (/ (+ 1 (sqrt 5)) 2))
-(define :ln-phi (ln :golden-ratio))
+(define :golden-ratio (rationalize->exact
+                       (/ (+ 1 (sqrt 5)) 2)
+                       (expt 10 -100)))
+(log/info "Defining :ln-phi")
+(define :ln-phi (rationalize->exact
+                 (+ :ln-3
+                    (- :ln-2)
+                    (euler-ln-cf (/ :golden-ratio 3/2) 40))
+                 (expt 10 -100)))
 (define (phi-cf k)
   (cont-frac (lambda (i) 1) k))
 
