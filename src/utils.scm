@@ -35,9 +35,10 @@
 
 (define (zero? z)
   ((lambda (r)
-     (= r
-        (if (exact? r) 0 0.0)))
-   (magnitude z)))
+     (if (exact? r)
+         (= r 0)
+         (float= r 0)))
+   (abs z)))
 
 (define (negative? x)
   (and (real? x) (< x 0.0)))
