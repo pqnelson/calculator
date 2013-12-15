@@ -82,6 +82,11 @@
 (define :ln-3 (rationalize->exact
                (+ 1 (euler-ln-cf (/ 3 :e) 47))
                (expt 10 -100))) ;; good to 100 digits
+(log/info "Defining :ln-pi...")
+(define :ln-pi (rationalize->exact
+                (+ :ln-3
+                   (euler-ln-cf (/ :pi 3) 50))
+                (expt 10 -78))) ;; good to 78 digits
 (log/info "Defining :ln-10...")
 (define :ln-10 (rationalize->exact
                 (+ (* 3 :ln-3) (euler-ln-cf 10/9 40))
