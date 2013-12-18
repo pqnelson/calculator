@@ -30,6 +30,7 @@
 (import "src/trig.scm")
 (import "src/hyperbolic-trig.scm")
 (import "src/combinatorics.scm")
+(import "src/quadrature.scm")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Square root
@@ -74,4 +75,3 @@
           (* (real-sqrt (magnitude x))
              (exp (* +i (angle x) (/ 1 2))))
           (real-sqrt x))))
-

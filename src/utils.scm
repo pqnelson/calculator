@@ -124,10 +124,10 @@
       (deriv guess))))
 
 (define (sum term a next b)
-  (define (iter a result)
-    (if (> a b)
+  (define (iter x result)
+    (if (> x b)
         result
-        (iter (next a) (+ (term a) result))))
+        (iter (next x) (+ (term x) result))))
   (iter a 0))
 
 (define (sigma term a b)
