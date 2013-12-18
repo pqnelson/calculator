@@ -48,17 +48,20 @@
 (define :sqrt-3 (newtons-sqrt 3 1002978273411373057/579069776145402304 0))
 (define :sqrt-5 (newtons-sqrt 5 25377553679502347277411602/11349187026003431978487841 0))
 (define :sqrt-pi (newtons-sqrt :pi 184238184425457900/103945264544593811 0))
-(define :sqrt-e (newtons-sqrt :e 6803184337622361001/4126339884444745657 0))
-(assert (float= (square :sqrt-2) 2))
 
 (define (real-sqrt x)
+  (define (iter x)
+    (cond
+     ((zero? x) 0)
+     ((> x 100) (* 10 (iter (/ x 100))))
+     ((> x 5) (* :sqrt-5 (iter (/ x 5))))
+     ((> x 2) (* :sqrt-2 (iter (/ x 2))))
+     (else (newtons-sqrt x (/ (inc x) 2) 0))))
   (cond
+   ((negative? x)
+    (* +i (iter (abs x))))
    ((zero? x) 0)
-   ((negative? x) (* +i (real-sqrt (abs x))))
-   ((> x 100) (* 10 (real-sqrt (/ x 100))))
-   ((> x 5) (* :sqrt-5 (real-sqrt (/ x 5))))
-   ((> x 2) (* :sqrt-2 (real-sqrt (/ x 2))))
-   (else (newtons-sqrt x (/ (inc x) 2) 0))))
+   (else (iter x))))
 
 (define (sqrt x)
   (if (infinite? x)
