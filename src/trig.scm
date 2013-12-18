@@ -176,7 +176,8 @@
 (define (tan z)
   (lambda (c)
     (if (zero? c)
-        (* (sin z) :+inf.0)
+        (* (if (real? z) 1 (sin z)) 
+           :+inf.0)
         (/ (sin z)
            c))
     (cos z)))
@@ -193,9 +194,10 @@
         :+inf.0
         (/ 1 c))))
 
-(define (cot x)
+(define (cot z)
   ((lambda (s)
      (if (zero? s)
-         (* (cos z) :+inf.0)
+         (* (if (real? z) 1 (cos z)) 
+            :+inf.0)
          (/ (cos z) s)))
    (sin z)))
