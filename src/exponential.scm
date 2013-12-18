@@ -43,17 +43,20 @@
 
 (log/info "Defining exponentiation...")
 (define (fast-expt b n)
+  (define (iter b n)
+    (cond 
+     ((= n 0) 1)
+     ((= n 1) b)
+     (else (* (if (even? n) 1 b) 
+              (iter (* b b) (quotient n 2))))))
   (cond
    ((infinite? n) (if (negative? n) 0 :+inf.0))
-   ((= n 0) 1)
    ((= b 1) 1)
    ((= b 0) 0)
    ((< b 0) (* (fast-expt (abs b) n)
                (exp (* +i :pi n))))
-   ((= n 1) b)
-   ((< n 0) (fast-expt (/ 1 b) (- n)))
-   (else (* (if (even? n) 1 b) 
-            (fast-expt (* b b) (quotient n 2))))))
+   ((< n 0) (iter (/ 1 b) (abs n)))
+   (else (iter b n))))
 
 (define (euler-exp-a z k)
   (if (= 1 k)
@@ -82,6 +85,9 @@
    (lambda (j) (faster-exp-num z (square z) j))
    (lambda (j) (faster-exp-den z j))
    k))
+
+(log/info "Defining :sqrt-e...")
+(define :sqrt-e (exp-cf 1/2 30)) ;; good to 100 digits
 
 ;; good to ~30 digits
 (define (real-exp z)
