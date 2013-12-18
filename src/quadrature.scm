@@ -88,33 +88,33 @@
                 0 n))))))
 
 (define (adaptive-trapezoid f a b tol)
-  (define (iter f a b tol)
+  (define (iter f a b tol I-coarse)
     (let* ((midpoint (/ (+ a b) 2))
-           (I-coarse (trapezoid-rule f a b))
-           (I-fine (+ (trapezoid-rule f a midpoint)
-                      (trapezoid-rule f midpoint b))))
-      (if (or (< (abs (- I-coarse I-fine))
+           (I-left (trapezoid-rule f a midpoint))
+           (I-right (trapezoid-rule f midpoint b)))
+      (if (or (< (abs (- I-coarse I-left I-right))
                  (* 3 (- b a) tol))
               (< tol
                  *machine-epsilon*))
-          I-fine
-          (+ (iter f a midpoint (/ tol 2))
-             (iter f midpoint b (/ tol 2))))))
-  (iter f a b tol))
+          (+ I-left I-right)
+          (+ (iter f a midpoint (/ tol 2) I-left)
+             (iter f midpoint b (/ tol 2) I-right)))))
+  (iter f a b tol (trapezoid-rule f a b)))
 
 (define (adaptive-simpsons f a b tol)
-  (define (iter f a b tol)
+  (define (iter f a b tol I-coarse)
     (let* ((midpoint (/ (+ a b) 2))
-           (I-coarse (simpsons-rule f a b))
-           (I-fine (+ (simpsons-rule f a midpoint)
-                      (simpsons-rule f midpoint b))))
-      (if (and (<= (abs (- I-coarse I-fine))
-                   (* 15 tol))
-               (> tol *machine-epsilon*))
-          I-fine
-          (+ (iter f a midpoint (/ tol 2))
-             (iter f midpoint b (/ tol 2))))))
-  (iter f a b tol))
+           (I-left (simpsons-rule f a midpoint))
+           (I-right (simpsons-rule f midpoint b)))
+      (if (or (<= (abs (- I-coarse I-left I-right))
+                  (* 15 tol))
+              (< tol *machine-epsilon*))
+          (+ I-left 
+             I-right
+             (/ (+ I-left I-right (- I-coarse)) 15))
+          (+ (iter f a midpoint (/ tol 2) I-left)
+             (iter f midpoint b (/ tol 2) I-right)))))
+  (iter f a b tol (simpsons-rule f a b)))
 
 (define (definite-integral f a b)
   (cond 
