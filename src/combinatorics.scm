@@ -26,13 +26,16 @@
 ;; factorials
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (log/info "Factorials...")
-(define (factorial n)
-  (fact-iter 1 1 n))
+;; (define (factorial n)
+;;   (fact-iter 1 1 n))
 
-(define (fact-iter product counter max-count)
-  (if (> counter max-count) 
-      product 
-      (fact-iter (* counter product) (inc counter) max-count)))
+;; (define (fact-iter product counter max-count)
+;;   (if (> counter max-count) 
+;;       product 
+;;       (fact-iter (* counter product) (inc counter) max-count)))
+
+(define (factorial n)
+  (stream-ref factorials n))
 
 ;; see arXiv:1105.3689 for review of general properties
 (define (choose n k)
@@ -50,6 +53,7 @@
    ((and (negative? n) (<= k n))
     (* (if (even? (- n k)) 1 -1)
        (choose (+ (- k) -1) (- n k))))
+   ((and (positive? n) (zero? k)) 1)
    (else 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

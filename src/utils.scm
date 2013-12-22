@@ -133,6 +133,7 @@
 (define (sigma term a b)
   (sum term a inc b))
 
+;; number theoretic functions
 (define (quotient a b)
   (truncate (/ a b)))
 
@@ -140,6 +141,93 @@
   (- a 
      (* b (quotient a b))))
 
+(define (divisible? a b)
+  (zero? (remainder a b)))
+
+;; stream utils
+(define (integers-starting-from n)
+  (cons-stream n (integers-starting-from (+ n 1))))
+
+(define naturals (integers-starting-from 1))
+
+(define (range n) (stream-head (integers-starting-from 0) n))
+
+(define (add-streams s1 s2)
+  (stream-map + s1 s2))
+
+(define (mul-streams s1 s2)
+  (stream-map * s1 s2))
+
+(define (invert-stream s)
+  (stream-map (lambda (x) (/ 1 x)) s))
+
+(define (negate-stream s)
+  (stream-map - s))
+
+(define inverted-naturals (invert-stream naturals))
+
+;; series utils
+(define (integrate-series series)
+  (mul-streams series inverted-naturals))
+
+(define factorials
+  (cons-stream 1
+               (cons-stream 1
+                            (mul-streams (stream-cdr factorials)
+                                         (stream-cdr naturals)))))
+
+(define add-series
+  add-streams)
+
+(define (scale-series factor stream)
+  (stream-map (lambda (x) (* x factor)) stream))
+
+(define negate-series negate-stream)
+
+(define sine-series
+  (cons-stream
+   0
+   (integrate-series
+    (cons-stream 1 (integrate-series (negate-stream sine-series))))))
+
+(define cosine-series
+  (cons-stream 1 (integrate-series (negate-stream sine-series))))
+
+;; (a0 + A)(b0 + B) = (+ (* a0 b0)
+;;                       (* A (+ b0 B)))
+(define (mul-series a b)
+  (cons-stream (* (stream-car a) (stream-car b))
+               (add-series
+                 (scale-series (stream-car a) (stream-cdr b))
+                 (mul-series (stream-cdr a) b))))
+
+;; (define foo-stream (invert-unit-series bernouli-summand-stream))
+;; (define (foo n) (stream-ref foo-stream n))
+(define (invert-unit-series s)
+  (cons-stream 1
+               (negate-series
+                (mul-series (stream-cdr s)
+                            (invert-unit-series s)))))
+
+;; sums as streams
+(define (partial-sums s)
+  (cons-stream (car s)
+               (add-streams (partial-sums s)
+                            (stream-cdr s))))
+
+(define harmonics
+  (partial-sums inverted-naturals))
+
+(define (euler-transform s)
+  (let ((s0 (stream-ref s 0))           ; Sn-1
+        (s1 (stream-ref s 1))           ; Sn
+        (s2 (stream-ref s 2)))          ; Sn+1
+    (cons-stream (- s2 (/ (square (- s2 s1))
+                          (+ s0 (* -2 s1) s2)))
+                 (euler-transform (stream-cdr s)))))
+
+
+;; miscellaneous
 (define void (if #f #f))
 
 (define (identity x)
