@@ -30,6 +30,7 @@
 (import "src/trig.scm")
 (import "src/hyperbolic-trig.scm")
 (import "src/combinatorics.scm")
+(import "src/bernoulli.scm")
 (import "src/quadrature.scm")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
