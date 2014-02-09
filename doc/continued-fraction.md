@@ -2,7 +2,7 @@ We could implement the naive continued fraction algorithm, as we compute
 it in grade school. This turns out to be horribly inefficient, because
 division operations kill us on performance.
 
-Instad, we use continuants, the way we learn it at university. It is
+Instead, we use continuants, the way we learn it at university. It is
 tempting therefore to write:
 ```scheme
 (define (inc x) (+ 1 x))

@@ -81,7 +81,7 @@ to invert it and negate the resulting logarithm. I have no proof that
 this would "settle", and not descend into infinite recursion.
 
 But if the number is between `1/2 < c < :e`, then we use the continued
-fraction, keeping 30 digits of precision.  
+fraction, keeping 30 digits of precision.
 
 ## Complex Logarithm
 

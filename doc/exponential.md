@@ -1,6 +1,6 @@
 # Overview
 
-The basic gameplan in this module is to define `:e`, then define the
+The basic game-plan in this module is to define `:e`, then define the
 exponential function. Lets review how we do this piecewise.
 
 ## Defining Euler's Constant "e"
