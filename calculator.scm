@@ -32,7 +32,7 @@
 (import "src/combinatorics.scm")
 (import "src/bernoulli.scm")
 (import "src/quadrature.scm")
-
+(import "src/stats.scm")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Square root
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
