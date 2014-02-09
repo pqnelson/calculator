@@ -170,6 +170,9 @@
 (define (integrate-series series)
   (mul-streams series inverted-naturals))
 
+(define (deriv-series series)
+  (mul-streams naturals (stream-cdr series)))
+
 (define factorials
   (cons-stream 1
                (cons-stream 1
